@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>นักสำรวจศัตรูพืช — เกมทบทวน 20 ข้อ</title>
+<style>
+  :root {
+    --green: #166534;
+    --green-dark: #14532d;
+    --green-light: #dcfce7;
+    --bg: #f0f7f2;
+    --text: #172b20;
+    --muted: #526359;
+    --line: #cfdfd3;
+    --red: #991b1b;
+    --red-light: #fef2f2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, "Tahoma", sans-serif;
+    line-height: 1.7;
+  }
+
+  button { font: inherit; }
+
+  button:focus-visible, summary:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 4px;
+  }
+
+  [hidden] { display: none !important; }
+
+  .container {
+    max-width: 900px;
+    margin: auto;
+    padding: 24px 16px 48px;
+  }
+
+  header { margin-bottom: 22px; }
+
+  .eyebrow {
+    color: var(--green);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 5vw, 2.3rem);
+    line-height: 1.35;
+    margin: 4px 0 12px;
+  }
+
+  h2 { line-height: 1.5; }
+
+  p { margin: 10px 0; }
+
+  .muted { color: var(--muted); }
+
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: clamp(20px, 4vw, 34px);
+    box-shadow: 0 8px 28px #14351d0a;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .feature {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .feature strong {
+    display: block;
+    font-size: 1.35rem;
+    color: var(--green);
+  }
+
+  .btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 22px;
+    background: var(--green);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 48px;
+  }
+
+  .btn:hover { background: var(--green-dark); }
+
+  .btn.secondary {
+    background: #e8f0ea;
+    color: var(--green-dark);
+  }
+
+  .btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+
+  .topline {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-weight: 700;
+  }
+
+  progress {
+    display: block;
+    width: 100%;
+    height: 12px;
+    margin: 14px 0 20px;
+    accent-color: var(--green);
+  }
+
+  .tag {
+    display: inline-block;
+    background: #edf4ef;
+    color: var(--green-dark);
+    border-radius: 100px;
+    padding: 3px 12px;
+    font-size: .9rem;
+  }
+
+  #questionText {
+    margin-top: 14px;
+    font-size: clamp(1.15rem, 3.5vw, 1.45rem);
+  }
+
+  .choices {
+    display: grid;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .choice {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
+    padding: 15px;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    background: white;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .choice:hover:not(:disabled) {
+    border-color: var(--green);
+    background: #f5fbf6;
+  }
+
+  .letter {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: #edf4ef;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+
+  .choice:disabled {
+    cursor: default;
+    opacity: 1;
+  }
+
+  .choice.correct {
+    border-color: #15803d;
+    background: #f0fdf4;
+  }
+
+  .choice.wrong {
+    border-color: #b91c1c;
+    background: var(--red-light);
+  }
+
+  .feedback {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 12px;
+    border-left: 5px solid var(--green);
+    background: #f0fdf4;
+  }
+
+  .feedback.incorrect {
+    border-left-color: var(--red);
+    background: var(--red-light);
+  }
+
+  .feedback h3 { margin: 0 0 8px; }
+
+  .source {
+    font-size: .9rem;
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .result-top { text-align: center; }
+
+  .score {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: var(--green);
+    margin: 12px 0 0;
+    line-height: 1.25;
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  th { background: #edf4ef; }
+
+  details {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 12px 0;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .wrong-text { color: var(--red); }
+
+  footer {
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+    margin-top: 24px;
+  }
+
+  @media (max-width: 520px) {
+    .features { grid-template-columns: 1fr; }
+    .feature { padding: 10px; }
+    .feature strong { display: inline; margin-right: 8px; }
+    .actions .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="eyebrow">กิจกรรมทบทวน • เกษตรศาสตร์ ปีที่ 2</div>
+    <h1>นักสำรวจศัตรูพืช</h1>
+    <p class="muted">หน่วยที่ 1 ความหมายและความสำคัญของศัตรูพืช</p>
+  </header>
+
+  <main>
+    <section id="startScreen" class="card" aria-labelledby="startTitle">
+      <h2 id="startTitle">ภารกิจ: เข้าใจศัตรูพืชก่อนจัดการ</h2>
+      <p>
+        ทบทวนความหมาย การจำแนก ความเสียหาย และปัจจัยการระบาด
+        ผ่านคำถามพื้นฐานและสถานการณ์จำลอง
+      </p>
+
+      <div class="features">
+        <div class="feature"><strong>20 ข้อ</strong>คำถามปรนัย</div>
+        <div class="feature"><strong>20 คะแนน</strong>ข้อละ 1 คะแนน</div>
+        <div class="feature"><strong>ไม่จับเวลา</strong>เน้นคิดและเรียนรู้</div>
+      </div>
+
+      <h3>กติกา</h3>
+      <ol>
+        <li>เลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว</li>
+        <li>เมื่อเลือกแล้ว จะเปลี่ยนคำตอบไม่ได้</li>
+        <li>อ่านเฉลยและเหตุผลก่อนกดไปข้อต่อไป</li>
+        <li>เมื่อจบเกม สามารถทบทวนข้อที่ตอบผิดและเล่นใหม่ได้</li>
+      </ol>
+
+      <p class="source">
+        อ้างอิง: เอกสาร “หน่วยที่ 1 ความหมายและความสำคัญของศัตรูพืช”
+        สถานการณ์ในคำถามเป็นสถานการณ์สมมติเพื่อประยุกต์แนวคิดในบทเรียน
+      </p>
+
+      <button id="startBtn" class="btn" type="button">เริ่มภารกิจ</button>
+    </section>
+
+    <section id="gameScreen" class="card" hidden
+             aria-labelledby="questionText">
+      <div class="topline">
+        <span id="counter"></span>
+        <span id="scoreLabel"></span>
+      </div>
+
+      <progress id="progress" value="0" max="20"
+                aria-label="จำนวนข้อที่ตอบแล้ว"></progress>
+
+      <span id="category" class="tag"></span>
+      <h2 id="questionText" tabindex="-1"></h2>
+      <p class="muted">เลือกคำตอบที่ถูกต้องที่สุด</p>
+      <div id="choices" class="choices"></div>
+
+      <div id="feedback" class="feedback" role="status"
+           aria-live="polite" aria-atomic="true" hidden></div>
+
+      <div class="actions">
+        <button id="nextBtn" class="btn" type="button" disabled>
+          ข้อต่อไป
+        </button>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="card" hidden
+             aria-labelledby="resultTitle">
+      <div class="result-top">
+        <h2 id="resultTitle" tabindex="-1">สรุปผลภารกิจ</h2>
+        <p id="finalScore" class="score"></p>
+        <p id="percentage"></p>
+        <p id="resultMessage"></p>
+      </div>
+
+      <h3>ผลแยกตามหัวข้อ</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">หัวข้อ</th>
+              <th scope="col">ตอบถูก</th>
+              <th scope="col">จำนวนข้อ</th>
+            </tr>
+          </thead>
+          <tbody id="topicResults"></tbody>
+        </table>
+      </div>
+
+      <h3 id="reviewTitle">ทบทวนข้อที่ตอบผิด</h3>
+      <div id="reviewList"></div>
+
+      <p class="source">
+        คะแนนนี้ใช้เพื่อทบทวนบทเรียน ไม่ใช่เกณฑ์ตัดสินผลการเรียนอย่างเป็นทางการ
+        เกมไม่ส่งข้อมูลไปยังเซิร์ฟเวอร์ และผลจะไม่ถูกเก็บเมื่อปิดหรือรีเฟรชหน้า
+      </p>
+
+      <div class="actions">
+        <button id="homeBtn" class="btn secondary" type="button">
+          กลับหน้าแรก
+        </button>
+        <button id="restartBtn" class="btn" type="button">
+          เล่นใหม่ / สุ่มใหม่
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    สื่อทบทวนสำหรับนักศึกษาปริญญาตรีด้านเกษตร ปีที่ 2
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/*
+  รูปแบบข้อมูล:
+  answer = ดัชนีคำตอบที่ถูกต้องใน choices ก่อนสุ่ม เริ่มจาก 0
+  หน้าอ้างอิงยึดตามหน้าของไฟล์ PDF ที่ใช้จัดทำกิจกรรม
+*/
+const questionBank = [
+  {
+    id: 1,
+    topic: "ความหมายและความสำคัญ",
+    question: "ข้อใดอธิบายความหมายของ “ศัตรูพืช” ตามบทเรียนได้ครอบคลุมที่สุด?",
+    choices: [
+      "แมลงทุกชนิดที่อาศัยอยู่ในแปลงเกษตร",
+      "สัตว์ พืช เชื้อโรค หรือสิ่งมีชีวิตอื่นที่ทำให้ระบบการผลิตทางการเกษตรและป่าไม้เสียหาย",
+      "เฉพาะเชื้อโรคที่ทำให้พืชแสดงอาการผิดปกติ",
+      "สิ่งไม่มีชีวิตทุกชนิดที่ทำให้ผลผลิตพืชลดลง"
+    ],
+    answer: 1,
+    explanation: "นิยามศัตรูพืชครอบคลุมสิ่งมีชีวิตหลายประเภทที่ก่อความเสียหายต่อระบบการผลิต ไม่ได้จำกัดเฉพาะแมลง และไม่ใช่แมลงทุกชนิดจะเป็นศัตรูพืช",
+    pages: "2"
+  },
+  {
+    id: 2,
+    topic: "ความหมายและความสำคัญ",
+    question: "บทเรียนจัดกลุ่มศัตรูพืชไว้เป็น 4 กลุ่มหลักตามข้อใด?",
+    choices: [
+      "รา แบคทีเรีย ไวรัส และไวรอยด์",
+      "แมลง หนู นก และหอย",
+      "โรคพืช วัชพืช แมลงศัตรูพืช และสัตว์ศัตรูพืช",
+      "พืชไร่ พืชสวน ป่าไม้ และพืชน้ำ"
+    ],
+    answer: 2,
+    explanation: "บทเรียนแบ่งหัวข้อศัตรูพืชออกเป็นโรคพืช วัชพืช แมลงศัตรูพืช และสัตว์ศัตรูพืช ส่วนรา แบคทีเรีย และไวรัสเป็นตัวอย่างในกลุ่มสาเหตุโรคพืช",
+    pages: "8"
+  },
+  {
+    id: 3,
+    topic: "ความหมายและความสำคัญ",
+    question: "สถานการณ์ใดเป็นตัวอย่างความเสียหายโดยตรงจากศัตรูพืชได้ชัดเจนที่สุด?",
+    choices: [
+      "ผู้ส่งออกเสียค่าใช้จ่ายในการตรวจสินค้าเพิ่มขึ้น",
+      "เกษตรกรเสียค่าใช้จ่ายซื้ออุปกรณ์ป้องกันศัตรูพืช",
+      "สินค้าถูกประเทศปลายทางปฏิเสธการนำเข้า",
+      "แมลงกัดกินส่วนของพืชจนผลผลิตลดลง"
+    ],
+    answer: 3,
+    explanation: "การกัดกินหรือเจาะดูดส่วนของพืชเป็นการทำลายโดยตรง ส่วนค่าใช้จ่ายในการป้องกันกำจัดและการถูกปฏิเสธนำเข้าเป็นผลกระทบทางเศรษฐกิจที่บทเรียนกล่าวถึง",
+    pages: "3–4"
+  },
+  {
+    id: 4,
+    topic: "ความหมายและความสำคัญ",
+    question: "ผลผลิตมีปริมาณตามเป้าหมาย แต่ถูกปฏิเสธการนำเข้าเพราะตรวจพบศัตรูพืชปนเปื้อน กรณีนี้สะท้อนประเด็นใดมากที่สุด?",
+    choices: [
+      "ความเสียหายเกิดได้เฉพาะเมื่อผลผลิตในแปลงลดลง",
+      "ศัตรูพืชส่งผลต่อเศรษฐกิจและการค้าระหว่างประเทศ",
+      "ศัตรูพืชมีความสำคัญเฉพาะก่อนเก็บเกี่ยว",
+      "การปนเปื้อนของศัตรูพืชไม่เกี่ยวข้องกับมูลค่าผลผลิต"
+    ],
+    answer: 1,
+    explanation: "แม้ปริมาณผลผลิตไม่ลดลง การปนเปื้อนของศัตรูพืชก็อาจนำไปสู่การปฏิเสธนำเข้าและความเสียหายทางการค้าได้",
+    pages: "3–4"
+  },
+  {
+    id: 5,
+    topic: "ความหมายและความสำคัญ",
+    question: "ข้อใดระบุระยะที่ต้องคำนึงถึงความเสียหายจากศัตรูพืชได้ครบตามบทเรียน?",
+    choices: [
+      "เฉพาะระยะเพาะกล้าและระยะออกดอก",
+      "เฉพาะระยะปลูกจนถึงเก็บเกี่ยว",
+      "ระยะการผลิตพืช ระยะหลังการเก็บเกี่ยว และระยะการขยายพันธุ์",
+      "เฉพาะระยะเก็บรักษาและขนส่ง"
+    ],
+    answer: 2,
+    explanation: "บทเรียนกล่าวถึงความสำคัญของศัตรูพืชทั้งในระยะการผลิตพืช หลังการเก็บเกี่ยว และการขยายพันธุ์ จึงไม่ควรพิจารณาเฉพาะช่วงที่พืชอยู่ในแปลง",
+    pages: "5–7"
+  },
+  {
+    id: 6,
+    topic: "โรคพืช",
+    question: "ความหมายของ “โรคพืช” ในบทเรียนสอดคล้องกับข้อใด?",
+    choices: [
+      "การเปลี่ยนแปลงที่ผิดไปจากพืชปกติ",
+      "การมีแมลงอาศัยอยู่บนต้นพืชทุกกรณี",
+      "การเปลี่ยนแปลงตามอายุของพืชทุกชนิด",
+      "ความผิดปกติที่เกิดจากเชื้อราเท่านั้น"
+    ],
+    answer: 0,
+    explanation: "บทเรียนอธิบายโรคพืชว่าเป็นการเปลี่ยนแปลงที่ผิดไปจากพืชปกติ และจำแนกสาเหตุได้ทั้งจากสิ่งมีชีวิตและสิ่งไม่มีชีวิต ไม่ได้จำกัดเฉพาะเชื้อรา",
+    pages: "9, 13–14"
+  },
+  {
+    id: 7,
+    topic: "โรคพืช",
+    question: "ข้อใดประกอบด้วยสาเหตุโรคพืชจากสิ่งมีชีวิตทั้งหมดตามการจำแนกในบทเรียน?",
+    choices: [
+      "เชื้อรา อุณหภูมิสูง และไวรัส",
+      "แบคทีเรีย การขาดธาตุอาหาร และไส้เดือนฝอย",
+      "ความเป็นกรด–ด่างของดิน ไวรอยด์ และโปรโตซัว",
+      "เชื้อรา แบคทีเรีย ไวรัส และไส้เดือนฝอย"
+    ],
+    answer: 3,
+    explanation: "บทเรียนจัดรา แบคทีเรีย ไวรัส ไวรอยด์ โปรโตซัว และไส้เดือนฝอยไว้ในกลุ่มสาเหตุโรคจากสิ่งมีชีวิต ส่วนอุณหภูมิ ธาตุอาหาร และ pH ดินเป็นปัจจัยไม่มีชีวิต",
+    pages: "13–14"
+  },
+  {
+    id: 8,
+    topic: "โรคพืช",
+    question: "ตรวจพบว่าพืชผิดปกติเพราะขาดธาตุอาหารและ pH ดินไม่เหมาะสม ควรจัดสาเหตุไว้ในกลุ่มใด?",
+    choices: [
+      "โรคพืชที่เกิดจากไวรัส",
+      "ความผิดปกติจากปัจจัยไม่มีชีวิต",
+      "การทำลายของแมลงดูดกินน้ำเลี้ยง",
+      "ความเสียหายจากสัตว์มีกระดูกสันหลัง"
+    ],
+    answer: 1,
+    explanation: "การขาดธาตุอาหารและ pH ดินเป็นตัวอย่างสาเหตุจากสิ่งไม่มีชีวิตตามบทเรียน อาการผิดปกติของพืชจึงไม่ได้แปลว่าต้องเกิดจากเชื้อโรคเสมอไป",
+    pages: "13–14"
+  },
+  {
+    id: 9,
+    topic: "วัชพืช",
+    question: "การพิจารณาว่าพืชชนิดหนึ่งเป็น “วัชพืช” ตามบทเรียนควรเน้นข้อใด?",
+    choices: [
+      "มีดอกขนาดเล็กและเติบโตเร็วเท่านั้น",
+      "เป็นพืชใบเลี้ยงเดี่ยวทุกชนิด",
+      "ขึ้นปะปนกับพืชปลูกและก่อให้เกิดความเสียหาย",
+      "เป็นพืชที่ไม่สามารถออกดอกได้"
+    ],
+    answer: 2,
+    explanation: "วัชพืชคือพืชที่ขึ้นปะปนในพืชปลูกและสร้างความเสียหาย การพิจารณาจึงต้องคำนึงถึงบริบทของพื้นที่ปลูกและผลกระทบ ไม่ใช่รูปร่างอย่างเดียว",
+    pages: "10"
+  },
+  {
+    id: 10,
+    topic: "วัชพืช",
+    question: "ข้อใดจับคู่ชนิดวัชพืชกับกลุ่มตามลักษณะภายนอกได้ถูกต้องทั้งหมด?",
+    choices: [
+      "สาบเสือ–ใบกว้าง / หญ้าคา–หญ้า / แห้วหมู–กก",
+      "สาบเสือ–หญ้า / หญ้าคา–กก / แห้วหมู–ใบกว้าง",
+      "สาบเสือ–กก / หญ้าคา–ใบกว้าง / แห้วหมู–หญ้า",
+      "สาบเสือ–ใบกว้าง / หญ้าคา–กก / แห้วหมู–หญ้า"
+    ],
+    answer: 0,
+    explanation: "ตัวอย่างในบทเรียนคือ สาบเสืออยู่ในกลุ่มใบกว้าง หญ้าคาอยู่ในกลุ่มหญ้า และแห้วหมูอยู่ในกลุ่มกก",
+    pages: "15"
+  },
+  {
+    id: 11,
+    topic: "วัชพืช",
+    question: "หากจำแนกวัชพืชตามวัฏจักรชีวิต คู่ใดเป็นวัชพืชหลายปีทั้งสองชนิด?",
+    choices: [
+      "สาบแร้งสาบกา และแห้วหมู",
+      "สาบแร้งสาบกา และหญ้าคา",
+      "สาบแร้งสาบกา และพืชปีเดียวชนิดอื่น",
+      "แห้วหมู และหญ้าคา"
+    ],
+    answer: 3,
+    explanation: "บทเรียนยกแห้วหมูและหญ้าคาเป็นตัวอย่างวัชพืชหลายปี ส่วนสาบแร้งสาบกาเป็นตัวอย่างวัชพืชปีเดียว",
+    pages: "18"
+  },
+  {
+    id: 12,
+    topic: "แมลงและสัตว์ศัตรูพืช",
+    question: "แมลงศัตรูพืชในบทเรียนเป็นสัตว์ที่จัดอยู่ในชั้นใด?",
+    choices: [
+      "Mammalia",
+      "Insecta",
+      "Aves",
+      "Reptilia"
+    ],
+    answer: 1,
+    explanation: "แมลงอยู่ในชั้น Insecta ตามบทเรียน โดยแมลงศัตรูพืชเป็นแมลงที่ก่อความเสียหายต่อพืช",
+    pages: "11"
+  },
+  {
+    id: 13,
+    topic: "แมลงและสัตว์ศัตรูพืช",
+    question: "พบตัวหนอนกินเนื้อเยื่ออยู่ภายในแผ่นใบและเกิดเป็นรอยทาง ควรจัดตามวิธีเข้าทำลายในกลุ่มใด?",
+    choices: [
+      "กลุ่มกัดกินราก",
+      "กลุ่มทำให้เกิดปุ่มปม",
+      "กลุ่มหนอนชอนใบ",
+      "กลุ่มหนอนเจาะลำต้น"
+    ],
+    answer: 2,
+    explanation: "ลักษณะสำคัญของสถานการณ์คือการกินอยู่ภายในแผ่นใบ จึงสอดคล้องกับกลุ่มหนอนชอนใบ ซึ่งเป็นหนึ่งในกลุ่มที่จำแนกตามวิธีเข้าทำลายในบทเรียน",
+    pages: "19–21"
+  },
+  {
+    id: 14,
+    topic: "แมลงและสัตว์ศัตรูพืช",
+    question: "พบแมลงใช้ปากเจาะเนื้อเยื่อพืชเพื่อดูดของเหลว โดยไม่พบส่วนใบถูกกัดแหว่ง ควรจัดเข้ากลุ่มใด?",
+    choices: [
+      "แมลงดูดกินน้ำเลี้ยง",
+      "แมลงกัดกินใบ",
+      "หนอนเจาะลำต้น",
+      "แมลงกัดกินราก"
+    ],
+    answer: 0,
+    explanation: "การเจาะดูดของเหลวจากพืชสอดคล้องกับกลุ่มดูดกินน้ำเลี้ยง การจำแนกข้อนี้ใช้วิธีเข้าทำลาย ไม่ได้ระบุชนิดแมลงจากอาการเพียงอย่างเดียว",
+    pages: "19–21"
+  },
+  {
+    id: 15,
+    topic: "แมลงและสัตว์ศัตรูพืช",
+    question: "ข้อใดจัดสัตว์ศัตรูพืชตามการมีกระดูกสันหลังได้ถูกต้อง?",
+    choices: [
+      "หนูและหอยเชอรี่เป็นสัตว์มีกระดูกสันหลัง",
+      "นกและปูนาเป็นสัตว์ไม่มีกระดูกสันหลัง",
+      "ค้างคาวและปูนาเป็นสัตว์มีกระดูกสันหลัง",
+      "หนูและนกเป็นสัตว์มีกระดูกสันหลัง ส่วนหอยเชอรี่และปูนาไม่มีกระดูกสันหลัง"
+    ],
+    answer: 3,
+    explanation: "บทเรียนยกหนู นก และค้างคาวเป็นตัวอย่างสัตว์มีกระดูกสันหลัง ส่วนหอยเชอรี่และปูนาเป็นตัวอย่างสัตว์ไม่มีกระดูกสันหลัง",
+    pages: "12, 23–24"
+  },
+  {
+    id: 16,
+    topic: "การระบาดและการจัดการ",
+    question: "ข้อใดจำแนกปัจจัยที่เกี่ยวข้องกับการระบาดได้ถูกต้อง?",
+    choices: [
+      "อุณหภูมิเป็นปัจจัยมีชีวิต ส่วนศัตรูธรรมชาติเป็นปัจจัยไม่มีชีวิต",
+      "อุณหภูมิและความชื้นเป็นปัจจัยไม่มีชีวิต ส่วนมนุษย์และศัตรูธรรมชาติเป็นปัจจัยมีชีวิต",
+      "ความชื้นและมนุษย์เป็นปัจจัยไม่มีชีวิตทั้งคู่",
+      "ศัตรูธรรมชาติและอุณหภูมิเป็นปัจจัยมีชีวิตทั้งคู่"
+    ],
+    answer: 1,
+    explanation: "ปัจจัยไม่มีชีวิตที่บทเรียนระบุ ได้แก่ อุณหภูมิและความชื้น ส่วนมนุษย์และศัตรูธรรมชาติอยู่ในกลุ่มปัจจัยสิ่งมีชีวิต",
+    pages: "33"
+  },
+  {
+    id: 17,
+    topic: "การระบาดและการจัดการ",
+    question: "หลังใช้สารเคมีที่ทำให้ตัวห้ำและตัวเบียนลดลง ต่อมาพบศัตรูพืชเพิ่มขึ้น คำอธิบายใดสอดคล้องกับบทเรียนมากที่สุด?",
+    choices: [
+      "ตัวห้ำและตัวเบียนเป็นสาเหตุหลักที่ทำให้พืชขาดธาตุอาหาร",
+      "จำนวนศัตรูธรรมชาติไม่เกี่ยวข้องกับการระบาด",
+      "สมดุลธรรมชาติถูกรบกวน ทำให้การควบคุมศัตรูพืชโดยศัตรูธรรมชาติลดลง",
+      "การใช้สารเคมีทำให้ปัจจัยสิ่งมีชีวิตหมดความสำคัญ"
+    ],
+    answer: 2,
+    explanation: "บทเรียนกล่าวถึงการทำลายสมดุลธรรมชาติ เช่น สารเคมีทำให้ตัวห้ำและตัวเบียนลดลง ซึ่งอาจเอื้อต่อการระบาดของศัตรูพืช",
+    pages: "28, 29–32"
+  },
+  {
+    id: 18,
+    topic: "การระบาดและการจัดการ",
+    question: "เหตุใดการนำเข้าพืชหรือวัสดุขยายพันธุ์โดยไม่ระมัดระวังจึงควรให้ความสำคัญ?",
+    choices: [
+      "อาจนำศัตรูพืชติดเข้ามาและทำให้เกิดการแพร่ระบาด",
+      "ทำให้ศัตรูธรรมชาติทุกชนิดเพิ่มขึ้นเสมอ",
+      "ป้องกันการแพร่กระจายของศัตรูพืชได้โดยอัตโนมัติ",
+      "เกี่ยวข้องเฉพาะราคาวัสดุปลูก ไม่เกี่ยวกับศัตรูพืช"
+    ],
+    answer: 0,
+    explanation: "การนำเข้าโดยไม่ระมัดระวังเป็นสาเหตุการแพร่ระบาดที่บทเรียนระบุ สถานการณ์นี้ประยุกต์แนวคิดดังกล่าวกับพืชและวัสดุขยายพันธุ์ที่เคลื่อนย้ายเข้าพื้นที่",
+    pages: "29–32"
+  },
+  {
+    id: 19,
+    topic: "การระบาดและการจัดการ",
+    question: "แปลงหนึ่งปลูกพืชชนิดเดียวติดต่อกันเป็นเวลานาน ข้อสรุปใดสอดคล้องกับบทเรียนมากที่สุด?",
+    choices: [
+      "เป็นหลักประกันว่าจะไม่เกิดศัตรูพืช",
+      "ทำให้ศัตรูพืชทุกชนิดหายไปจากพื้นที่",
+      "ไม่มีความเกี่ยวข้องกับการแพร่ระบาด",
+      "เป็นหนึ่งในสาเหตุที่อาจเอื้อต่อการแพร่ระบาดของศัตรูพืช"
+    ],
+    answer: 3,
+    explanation: "บทเรียนระบุการปลูกพืชชนิดเดียวติดต่อกันเป็นเวลานานเป็นหนึ่งในสาเหตุการแพร่ระบาด แต่ไม่ได้หมายความว่าทุกแปลงจะเกิดการระบาดเท่ากัน เพราะยังมีปัจจัยอื่นเกี่ยวข้อง",
+    pages: "29–33"
+  },
+  {
+    id: 20,
+    topic: "การระบาดและการจัดการ",
+    question: "ผู้ผลิตต้องการคำนึงถึงสุขภาพและลดปัญหาการกีดกันทางการค้า แนวทางใดตรงกับแนวคิดที่บทเรียนกล่าวถึง?",
+    choices: [
+      "ดูแลเฉพาะปริมาณผลผลิต โดยไม่สนใจการปนเปื้อน",
+      "ปฏิบัติตามแนวทางเกษตรดีที่เหมาะสม หรือ GAP",
+      "จัดการศัตรูพืชเฉพาะเมื่อสินค้าถูกปฏิเสธนำเข้าแล้ว",
+      "ละเลยการจัดการหลังเก็บเกี่ยว เพราะพ้นระยะปลูกแล้ว"
+    ],
+    answer: 1,
+    explanation: "บทเรียนเชื่อมโยงการปฏิบัติตาม GAP กับสุขภาพและการป้องกันปัญหาการกีดกันทางการค้า การปฏิบัติตามแนวทางนี้ไม่ได้เป็นการรับประกันว่าสินค้าจะผ่านข้อกำหนดทุกกรณี",
+    pages: "5"
+  }
+];
+
+const $ = (id) => document.getElementById(id);
+
+let questions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let responses = [];
+
+function shuffle(array) {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function showScreen(screenId) {
+  ["startScreen", "gameScreen", "resultScreen"].forEach((id) => {
+    $(id).hidden = id !== screenId;
+  });
+}
+
+function startGame() {
+  questions = shuffle(questionBank).map((q) => ({
+    ...q,
+    options: shuffle(q.choices.map((text, index) => ({
+      text,
+      isCorrect: index === q.answer
+    })))
+  }));
+
+  currentIndex = 0;
+  score = 0;
+  answered = false;
+  responses = [];
+
+  $("progress").max = questions.length;
+  showScreen("gameScreen");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentIndex];
+
+  $("counter").textContent =
+    `ข้อ ${currentIndex + 1} / ${questions.length}`;
+  $("scoreLabel").textContent = `คะแนน ${score}`;
+  $("progress").value = responses.length;
+  $("category").textContent = q.topic;
+  $("questionText").textContent = q.question;
+
+  $("feedback").hidden = true;
+  $("feedback").replaceChildren();
+  $("feedback").className = "feedback";
+
+  $("nextBtn").disabled = true;
+  $("nextBtn").textContent =
+    currentIndex === questions.length - 1
+      ? "ดูผลสรุป"
+      : "ข้อต่อไป";
+
+  $("choices").replaceChildren();
+
+  q.options.forEach((option, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choice";
+
+    const letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = ["ก", "ข", "ค", "ง"][index];
+    letter.setAttribute("aria-hidden", "true");
+
+    const text = document.createElement("span");
+    text.textContent = option.text;
+
+    button.append(letter, text);
+    button.addEventListener("click", () => selectAnswer(index));
+    $("choices").appendChild(button);
+  });
+
+  $("questionText").focus();
+}
+
+function appendParagraph(parent, text, className = "") {
+  const paragraph = document.createElement("p");
+  paragraph.textContent = text;
+  if (className) paragraph.className = className;
+  parent.appendChild(paragraph);
+}
+
+function selectAnswer(optionIndex) {
+  // ป้องกันการกดซ้ำหรือการเพิ่มคะแนนหลายครั้งในข้อเดียว
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentIndex];
+  const selected = q.options[optionIndex];
+  const correctOption = q.options.find((option) => option.isCorrect);
+  const isCorrect = selected.isCorrect;
+
+  if (isCorrect) score++;
+
+  responses.push({
+    question: q,
+    selectedText: selected.text,
+    correctText: correctOption.text,
+    isCorrect
+  });
+
+  Array.from($("choices").children).forEach((button, index) => {
+    button.disabled = true;
+
+    if (q.options[index].isCorrect) {
+      button.classList.add("correct");
+      button.lastElementChild.textContent += " — คำตอบที่ถูกต้อง";
+    }
+
+    if (index === optionIndex && !isCorrect) {
+      button.classList.add("wrong");
+      button.lastElementChild.textContent += " — คุณเลือกข้อนี้";
+    }
+  });
+
+  $("scoreLabel").textContent = `คะแนน ${score}`;
+  $("progress").value = responses.length;
+
+  const feedback = $("feedback");
+  feedback.className = isCorrect
+    ? "feedback"
+    : "feedback incorrect";
+  feedback.hidden = false;
+
+  const heading = document.createElement("h3");
+  heading.textContent = isCorrect
+    ? "ถูกต้อง! ได้รับ 1 คะแนน"
+    : "ยังไม่ถูก ลองเรียนรู้จากเฉลย";
+  feedback.appendChild(heading);
+
+  appendParagraph(feedback, `คำตอบที่ถูกต้อง: ${correctOption.text}`);
+  appendParagraph(feedback, q.explanation);
+  appendParagraph(
+    feedback,
+    `อ้างอิงบทเรียน: หน้า ${q.pages}`,
+    "source"
+  );
+
+  $("nextBtn").disabled = false;
+}
+
+function nextQuestion() {
+  if (!answered) return;
+
+  if (currentIndex < questions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  showScreen("resultScreen");
+
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+
+  $("finalScore").textContent = `${score} / ${total}`;
+  $("percentage").textContent = `ตอบถูก ${percent}%`;
+
+  let message;
+  if (percent >= 80) {
+    message = "ทำได้ดีมาก! ลองอธิบายเหตุผลของแต่ละคำตอบให้เพื่อนฟัง";
+  } else if (percent >= 60) {
+    message = "เข้าใจหลายประเด็นแล้ว ทบทวนข้อที่พลาดเพื่อให้แม่นยำขึ้น";
+  } else {
+    message = "ใช้เฉลยด้านล่างช่วยทบทวน แล้วลองทำใหม่อีกครั้งได้เลย";
+  }
+  $("resultMessage").textContent = message;
+
+  const topicStats = new Map();
+
+  responses.forEach((response) => {
+    const topic = response.question.topic;
+    if (!topicStats.has(topic)) {
+      topicStats.set(topic, { correct: 0, total: 0 });
+    }
+    const stat = topicStats.get(topic);
+    stat.total++;
+    if (response.isCorrect) stat.correct++;
+  });
+
+  $("topicResults").replaceChildren();
+
+  topicStats.forEach((stat, topic) => {
+    const row = document.createElement("tr");
+    [topic, stat.correct, stat.total].forEach((value) => {
+      const cell = document.createElement("td");
+      cell.textContent = String(value);
+      row.appendChild(cell);
+    });
+    $("topicResults").appendChild(row);
+  });
+
+  const incorrect = responses
+    .map((response, index) => ({ ...response, order: index + 1 }))
+    .filter((response) => !response.isCorrect);
+
+  $("reviewList").replaceChildren();
+
+  $("reviewTitle").textContent =
+    `ทบทวนข้อที่ตอบผิด (${incorrect.length} ข้อ)`;
+
+  if (incorrect.length === 0) {
+    appendParagraph(
+      $("reviewList"),
+      "ตอบถูกครบทุกข้อ! ลองเล่นใหม่เพื่อทบทวนโดยเปลี่ยนลำดับคำถามและตัวเลือก"
+    );
+  } else {
+    incorrect.forEach((response) => {
+      const details = document.createElement("details");
+      const summary = document.createElement("summary");
+
+      summary.textContent =
+        `ข้อ ${response.order}: ${response.question.question}`;
+      details.appendChild(summary);
+
+      appendParagraph(
+        details,
+        `คำตอบของคุณ: ${response.selectedText}`,
+        "wrong-text"
+      );
+      appendParagraph(
+        details,
+        `คำตอบที่ถูกต้อง: ${response.correctText}`
+      );
+      appendParagraph(details, response.question.explanation);
+      appendParagraph(
+        details,
+        `อ้างอิงบทเรียน: หน้า ${response.question.pages}`,
+        "source"
+      );
+
+      $("reviewList").appendChild(details);
+    });
+  }
+
+  $("resultTitle").focus();
+}
+
+$("startBtn").addEventListener("click", startGame);
+$("restartBtn").addEventListener("click", startGame);
+$("nextBtn").addEventListener("click", nextQuestion);
+
+$("homeBtn").addEventListener("click", () => {
+  showScreen("startScreen");
+  $("startBtn").focus();
+});
+</script>
+</body>
+</html>
